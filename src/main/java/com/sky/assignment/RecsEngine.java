@@ -3,11 +3,13 @@ package com.sky.assignment;
 import com.sky.assignment.filters.RecFilter;
 import com.sky.assignment.model.Recommendation;
 import com.sky.assignment.model.Recommendations;
+
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.joda.time.Interval;
 import org.joda.time.Minutes;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -29,6 +31,24 @@ public class RecsEngine {
         this.filters = filters;
     }
 
+    /**
+     * A wrapper method that uses the subscriber parameter as well to produce recommendations
+     * This is needed to be able to cache on subscriber and all request params
+     * 
+     * @param subscriber
+     * @param numberOfRecs
+     * @param start
+     * @param end
+     * @return recommendations
+     */
+    @Cacheable(value="recommendations", key="#p0.concat(#p1).concat(#p2).concat(#p3)")
+    public Recommendations recommend(String subscriber,long numberOfRecs, long start, long end)
+    {
+    	 System.out.println("GET THE recommendations");
+    	return recommend(numberOfRecs, start, end);
+    }
+
+    
     public Recommendations recommend(long numberOfRecs, long start, long end) {
         List<Recommendation> recs = new ArrayList<Recommendation>();
         int loops = 0;
